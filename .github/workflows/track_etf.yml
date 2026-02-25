@@ -46,5 +46,4 @@ jobs:
       - name: Run tracking script
         run: |
           python track_etf_returns.py
-
-      - 
+      
