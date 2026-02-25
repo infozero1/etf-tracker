@@ -19,42 +19,35 @@ def main():
 
     # 2) Scarica ultimi prezzi di chiusura da Yahoo
     data = yf.download(
-    tickers,
-    period="10d",         # un po’ più lungo per sicurezza
-    interval="1d",
-    auto_adjust=True,
-    progress=False,
-)
+        tickers,
+        period="10d",        # un po' più lungo per sicurezza
+        interval="1d",
+        auto_adjust=True,
+        progress=False,
+    )
 
-if isinstance(data.columns, pd.MultiIndex):
-    prices = data["Close"]
-else:
-    prices = data
+    if isinstance(data.columns, pd.MultiIndex):
+        prices = data["Close"]
+    else:
+        prices = data
 
-# togli solo le righe completamente vuote
-prices = prices.dropna(how="all")
+    # togli solo le righe completamente vuote
+    prices = prices.dropna(how="all")
 
-if prices.empty:
-    print("Nessun prezzo disponibile da Yahoo.")
-    return
+    if prices.empty:
+        print("Nessun prezzo disponibile da Yahoo.")
+        return
 
-# riempi i buchi usando l’ultimo prezzo disponibile per ogni ETF
-prices = prices.ffill()  # forward-fill
+    # riempi buchi con l'ultimo prezzo disponibile per ogni ETF
+    prices = prices.ffill()
 
-# ultima riga dopo il fill: ogni colonna dovrebbe avere un valore
-last_row = prices.iloc[-1]
-last_date = last_row.name
-if isinstance(last_date, dt.datetime):
-    last_date = last_date.date()
-
-ticker_to_price = {
-    t: float(last_row[t])
-    for t in prices.columns
-    if pd.notna(last_row[t])
-}
+    # ultima riga disponibile (dopo il fill)
+    last_row = prices.iloc[-1]
+    last_date = last_row.name
     if isinstance(last_date, dt.datetime):
         last_date = last_date.date()
 
+    # mappa ticker -> prezzo di chiusura
     ticker_to_price = {
         t: float(last_row[t])
         for t in prices.columns
@@ -93,11 +86,11 @@ ticker_to_price = {
 
     today_df = pd.DataFrame(rows)
 
-    # 4) Append allo storico
+    # 4) Append allo storico (tieni tutte le date)
     hist_path = Path(HIST_FILE)
     if hist_path.exists():
         hist = pd.read_csv(hist_path)
-        # rimuovi eventuali righe già presenti per questa data
+        # rimuovi eventuali righe già presenti per questa data (per rilanci multipli)
         hist = hist[hist["data"] != last_date.isoformat()]
         hist = pd.concat([hist, today_df], ignore_index=True)
     else:
