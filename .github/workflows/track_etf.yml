@@ -18,11 +18,26 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Commit and push updated history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git status --porcelain | grep etf_returns_history.csv; then
+            git add etf_returns_history.csv
+            git commit -m "Update ETF returns history [skip ci]" || echo "Nessuna modifica da commitare"
+            # allinea il ramo locale con quello remoto
+            git pull --rebase origin main || echo "Niente da riallineare"
+            git push origin main
+          else
+            echo "Nessuna modifica in etf_returns_history.csv"
+          fi
 
       - name: Install dependencies
         run: |
@@ -32,14 +47,4 @@ jobs:
         run: |
           python track_etf_returns.py
 
-      - name: Commit and push updated history
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git status --porcelain | grep etf_returns_history.csv; then
-            git add etf_returns_history.csv
-            git commit -m "Update ETF returns history [skip ci]" || echo "Nessuna modifica da commitare"
-            git push
-          else
-            echo "Nessuna modifica in etf_returns_history.csv"
-          fi
+      - 
