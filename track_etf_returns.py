@@ -19,26 +19,39 @@ def main():
 
     # 2) Scarica ultimi prezzi di chiusura da Yahoo
     data = yf.download(
-        tickers,
-        period="5d",          # ultimi giorni, basta per avere l'ultimo close
-        interval="1d",
-        auto_adjust=True,
-        progress=False,
-    )
+    tickers,
+    period="10d",         # un po’ più lungo per sicurezza
+    interval="1d",
+    auto_adjust=True,
+    progress=False,
+)
 
-    if isinstance(data.columns, pd.MultiIndex):
-        prices = data["Close"]
-    else:
-        prices = data
+if isinstance(data.columns, pd.MultiIndex):
+    prices = data["Close"]
+else:
+    prices = data
 
-    prices = prices.dropna(how="all")
-    if prices.empty:
-        print("Nessun prezzo disponibile da Yahoo.")
-        return
+# togli solo le righe completamente vuote
+prices = prices.dropna(how="all")
 
-    # ultima riga disponibile (ultimo giorno di borsa)
-    last_row = prices.iloc[-1]
-    last_date = last_row.name
+if prices.empty:
+    print("Nessun prezzo disponibile da Yahoo.")
+    return
+
+# riempi i buchi usando l’ultimo prezzo disponibile per ogni ETF
+prices = prices.ffill()  # forward-fill
+
+# ultima riga dopo il fill: ogni colonna dovrebbe avere un valore
+last_row = prices.iloc[-1]
+last_date = last_row.name
+if isinstance(last_date, dt.datetime):
+    last_date = last_date.date()
+
+ticker_to_price = {
+    t: float(last_row[t])
+    for t in prices.columns
+    if pd.notna(last_row[t])
+}
     if isinstance(last_date, dt.datetime):
         last_date = last_date.date()
 
