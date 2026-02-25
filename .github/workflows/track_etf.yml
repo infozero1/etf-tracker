@@ -1,0 +1,45 @@
+name: Track ETF returns daily
+
+on:
+  schedule:
+    # ogni giorno feriale alle 19:30 UTC (~20:30 ora italiana in inverno, 21:30 in estate)
+    - cron: "30 19 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas
+
+      - name: Run tracking script
+        run: |
+          python track_etf_returns.py
+
+      - name: Commit and push updated history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git status --porcelain | grep etf_returns_history.csv; then
+            git add etf_returns_history.csv
+            git commit -m "Update ETF returns history [skip ci]" || echo "Nessuna modifica da commitare"
+            git push
+          else
+            echo "Nessuna modifica in etf_returns_history.csv"
+          fi
