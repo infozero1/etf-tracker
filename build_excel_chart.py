@@ -5,6 +5,8 @@ INPUT_CSV = "etf_returns_history.csv"
 POSITIONS_CSV = "posizioni_etf.csv"
 OUTPUT_XLSX = "grafico_portafoglio.xlsx"
 
+# ETF da escludere dal grafico (volatilità troppo alta o dati non affidabili)
+EXCLUDE_FROM_CHART = {"Bitcoin_ETP"}
 
 def main():
     csv_path = Path(INPUT_CSV)
