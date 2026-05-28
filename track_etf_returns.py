@@ -7,19 +7,9 @@ import yfinance as yf
 POS_FILE  = "posizioni_etf.csv"
 HIST_FILE = "etf_returns_history.csv"
 
-# Ticker alternativi per strumenti che Yahoo non indicizza bene
-TICKER_FALLBACK = {
-    "WBIT.DE": "BTCW.SW",   # WisdomTree Bitcoin Xetra → Svizzera stesso strumento
-    "WBIT.MI": "BTCW.SW",
-}
-
-# Per crypto/ETP in USD: converti con tasso EUR/USD
-USD_TICKERS = {"BTCW.SW": False}   # BTCW.SW è già in EUR, nessuna conversione
-
-
 def resolve_ticker(ticker: str) -> str:
-    """Ritorna il ticker effettivo da scaricare (con fallback)."""
-    return TICKER_FALLBACK.get(ticker, ticker)
+    """Ritorna il ticker effettivo da scaricare."""
+    return ticker
 
 
 def main():
