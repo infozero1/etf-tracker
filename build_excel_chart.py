@@ -24,13 +24,15 @@ def main():
     df["data"] = pd.to_datetime(df["data"])
     df = df.sort_values(["data", "nome"]).copy()
 
-    # Unisci quantità dal file posizioni
-    pos = pos[["Nome", "Quantita"]].copy()
-    df = df.merge(pos, left_on="nome", right_on="Nome", how="left")
+    # Rimuovi ETF esclusi dallo storico prima del merge
+    df = df[~df["nome"].isin(EXCLUDE_FROM_CHART)].copy()
 
-    if df["Quantita"].isna().any():
-        missing = df.loc[df["Quantita"].isna(), "nome"].unique().tolist()
-        raise ValueError(f"Mancano le quantità per questi ETF: {missing}")
+    # INNER JOIN — ignora automaticamente ETF non più in posizioni_etf.csv
+    pos = pos[["Nome", "Quantita"]].copy()
+    df = df.merge(pos, left_on="nome", right_on="Nome", how="inner")
+
+    if df.empty:
+        raise ValueError("Nessun ETF in comune tra storico e posizioni.")
 
     # Calcolo rendimento totale del portafoglio pesato
     df["valore_iniziale"] = df["Quantita"] * df["prezzo_carico"]
