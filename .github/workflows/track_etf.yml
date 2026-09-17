@@ -37,15 +37,11 @@ jobs:
           python build_excel_chart.py
 
       - name: Commit and push updated files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if git status --porcelain | grep -E 'etf_returns_history.csv|grafico_portafoglio.xlsx'; then
-            git add etf_returns_history.csv grafico_portafoglio.xlsx
-            git commit -m "Update ETF history and Excel chart [skip ci]" || echo "Nessuna modifica da commitare"
-            git pull --rebase origin main || echo "Niente da riallineare"
-            git push origin main
-          else
-            echo "Nessuna modifica nei file da salvare"
-          fi
+  run: |
+    git config user.name "github-actions[bot]"
+    git config user.email "github-actions[bot]@users.noreply.github.com"
+    git pull --rebase origin main
+    git add etf_returns_history.csv grafico_portafoglio.xlsx
+    git diff --staged --quiet && echo "Nessuna modifica" && exit 0
+    git commit -m "Update ETF history and Excel chart [skip ci]"
+    git push origin main
