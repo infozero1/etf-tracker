@@ -2,7 +2,9 @@ name: Track ETF returns daily
 
 on:
   schedule:
-    - cron: "30 18 * * 1-5"   # 20:30 ora italiana (UTC+2 estate)
+    - cron: "00 07 * * 2-6"   # 07:00 UTC = 09:00 ora italiana
+                                # martedì-sabato: cattura i prezzi del giorno precedente
+                                # (lun→prezzi ven, mar→prezzi lun, ecc.)
   workflow_dispatch: {}
 
 permissions:
