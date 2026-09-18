@@ -11,7 +11,6 @@ permissions:
 jobs:
   track:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,18 +24,15 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: |
-          pip install yfinance pandas xlsxwriter
+        run: pip install yfinance pandas xlsxwriter
 
       - name: Run tracking script
-        run: |
-          python track_etf_returns.py
+        run: python track_etf_returns.py
 
       - name: Build Excel chart
-        run: |
-          python build_excel_chart.py
+        run: python build_excel_chart.py
 
-           - name: Commit and push updated files
+      - name: Commit and push updated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
