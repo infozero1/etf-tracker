@@ -36,7 +36,7 @@ jobs:
         run: |
           python build_excel_chart.py
 
-      - name: Commit and push updated files
+           - name: Commit and push updated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
